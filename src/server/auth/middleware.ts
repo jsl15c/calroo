@@ -1,14 +1,15 @@
 // Auth guard for protected API routes.
 // Every protected route must call getSession() and check for null.
 
-import type { SessionPayload } from "@/lib/types";
 import { env } from "@/lib/env";
-import { getSession, buildSessionCookie } from "./session";
+import type { SessionPayload } from "@/lib/types";
 import { refreshAccessToken } from "./google-oauth";
+import { buildSessionCookie, getSession } from "./session";
 
-export type SessionResult =
-  | { session: SessionPayload; updatedCookie: string | null }
-  | null;
+export type SessionResult = {
+  session: SessionPayload;
+  updatedCookie: string | null;
+} | null;
 
 /**
  * Reads the session cookie, decrypts it, and refreshes the access token

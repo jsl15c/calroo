@@ -47,8 +47,7 @@ function mapEvent(raw: GoogleEvent): CalendarEvent {
     start: raw.start.dateTime ?? raw.start.date ?? "",
     end: raw.end.dateTime ?? raw.end.date ?? "",
     attendees: raw.attendees?.map((a) => a.email) ?? [],
-    recurring:
-      Boolean(raw.recurringEventId) || Boolean(raw.recurrence?.length),
+    recurring: Boolean(raw.recurringEventId) || Boolean(raw.recurrence?.length),
     status: raw.status ?? "confirmed",
     description: raw.description,
   };
@@ -79,7 +78,8 @@ export async function fetchEvents(
   }
 
   if (!response.ok) {
-    throw new Error(`Google Calendar API error: ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new GoogleApiError(response.status, body);
   }
 
   const data = (await response.json()) as GoogleEventListResponse;
@@ -120,7 +120,8 @@ export async function createEvent(
 
   if (response.status === 401) throw new GoogleAuthError("Token expired");
   if (!response.ok) {
-    throw new Error(`Create event failed: ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new GoogleApiError(response.status, body);
   }
 
   return mapEvent((await response.json()) as GoogleEvent);
@@ -153,7 +154,8 @@ export async function updateEvent(
 
   if (response.status === 401) throw new GoogleAuthError("Token expired");
   if (!response.ok) {
-    throw new Error(`Update event failed: ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new GoogleApiError(response.status, body);
   }
 
   return mapEvent((await response.json()) as GoogleEvent);
@@ -172,7 +174,8 @@ export async function deleteEvent(
   if (response.status === 401) throw new GoogleAuthError("Token expired");
   if (response.status === 404) return; // already gone
   if (!response.ok) {
-    throw new Error(`Delete event failed: ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new GoogleApiError(response.status, body);
   }
 }
 
@@ -182,5 +185,29 @@ export class GoogleAuthError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "GoogleAuthError";
+  }
+}
+
+export class GoogleApiError extends Error {
+  status: number;
+  body: string;
+
+  constructor(status: number, body: string) {
+    const parsed = GoogleApiError.parseBody(body);
+    super(parsed ?? `Google Calendar API error: ${status}`);
+    this.name = "GoogleApiError";
+    this.status = status;
+    this.body = body;
+  }
+
+  private static parseBody(body: string): string | null {
+    try {
+      const json = JSON.parse(body) as {
+        error?: { message?: string; status?: string };
+      };
+      return json.error?.message ?? null;
+    } catch {
+      return null;
+    }
   }
 }

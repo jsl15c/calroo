@@ -33,9 +33,7 @@ export async function encryptSession(
   );
 
   const ivB64 = btoa(String.fromCharCode(...iv));
-  const ctB64 = btoa(
-    String.fromCharCode(...new Uint8Array(ciphertext)),
-  );
+  const ctB64 = btoa(String.fromCharCode(...new Uint8Array(ciphertext)));
 
   return `${ivB64}:${ctB64}`;
 }

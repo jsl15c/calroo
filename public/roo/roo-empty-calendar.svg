@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+  <!-- Roo empty calendar — checking pocket watch -->
+  <!-- Body -->
+  <ellipse cx="60" cy="80" rx="22" ry="28" fill="#C8553D" opacity="0.9"/>
+  <!-- Tailcoat -->
+  <path d="M40 95 Q50 112 60 109 Q70 112 80 95 Q74 105 60 103 Q46 105 40 95Z" fill="#4A2C2A"/>
+  <!-- Head -->
+  <ellipse cx="60" cy="48" rx="18" ry="20" fill="#C8553D"/>
+  <!-- Ears -->
+  <ellipse cx="49" cy="32" rx="5" ry="10" fill="#C8553D"/>
+  <ellipse cx="71" cy="32" rx="5" ry="10" fill="#C8553D"/>
+  <ellipse cx="49" cy="32" rx="3" ry="7" fill="#E8856F"/>
+  <ellipse cx="71" cy="32" rx="3" ry="7" fill="#E8856F"/>
+  <!-- Eyes — looking down at watch -->
+  <ellipse cx="54" cy="50" rx="2.5" ry="3" fill="#1C1917"/>
+  <ellipse cx="66" cy="50" rx="2.5" ry="3" fill="#1C1917"/>
+  <!-- Pocket watch in hand -->
+  <circle cx="85" cy="82" r="10" fill="#D4A843" stroke="#B8860B" stroke-width="1.5"/>
+  <circle cx="85" cy="82" r="8" fill="#FAFAF9"/>
+  <line x1="85" y1="82" x2="85" y2="76" stroke="#1C1917" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="85" y1="82" x2="89" y2="84" stroke="#1C1917" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Arm holding watch -->
+  <path d="M78 75 Q80 70 85 72" stroke="#C8553D" stroke-width="7" stroke-linecap="round" fill="none"/>
+</svg>

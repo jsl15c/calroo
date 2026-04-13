@@ -105,7 +105,8 @@ export function shortId(): string {
 export function getGreeting(): string {
   const hour = new Date().getHours();
   const day = new Date().getDay(); // 0=Sun, 6=Sat
-  if (day === 0 || day === 6) return "A fine weekend ahead. Anything to arrange?";
+  if (day === 0 || day === 6)
+    return "A fine weekend ahead. Anything to arrange?";
   if (hour < 12) return "Good morning. Shall we review your week?";
   if (hour < 17) return "Good afternoon. Your schedule awaits.";
   return "Good evening. Let's prepare for tomorrow.";

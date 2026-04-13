@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" aria-hidden="true">
+  <!-- Roo hero — full body, slight bow. Placeholder SVG. -->
+  <!-- Body -->
+  <ellipse cx="90" cy="110" rx="32" ry="40" fill="#C8553D" opacity="0.9"/>
+  <!-- Tailcoat -->
+  <path d="M62 130 Q75 160 90 155 Q105 160 118 130 Q110 145 90 142 Q70 145 62 130Z" fill="#4A2C2A"/>
+  <!-- Head -->
+  <ellipse cx="90" cy="68" rx="24" ry="28" fill="#C8553D"/>
+  <!-- Ears -->
+  <ellipse cx="74" cy="45" rx="7" ry="14" fill="#C8553D"/>
+  <ellipse cx="106" cy="45" rx="7" ry="14" fill="#C8553D"/>
+  <ellipse cx="74" cy="45" rx="4" ry="10" fill="#E8856F"/>
+  <ellipse cx="106" cy="45" rx="4" ry="10" fill="#E8856F"/>
+  <!-- Face -->
+  <ellipse cx="84" cy="72" rx="4" ry="4" fill="#1C1917"/>
+  <ellipse cx="96" cy="72" rx="4" ry="4" fill="#1C1917"/>
+  <!-- Slight knowing expression — one brow raised -->
+  <path d="M80 64 Q84 61 88 64" stroke="#4A2C2A" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <path d="M92 62 Q96 60 100 63" stroke="#4A2C2A" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Muzzle -->
+  <ellipse cx="90" cy="79" rx="8" ry="5" fill="#E8856F"/>
+  <path d="M87 81 Q90 84 93 81" stroke="#4A2C2A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+  <!-- Pocket square -->
+  <rect x="84" y="96" width="12" height="8" rx="1" fill="#B8860B" opacity="0.9"/>
+  <!-- Arms in bow position -->
+  <path d="M62 105 Q50 115 55 125" stroke="#C8553D" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <path d="M118 105 Q130 115 125 125" stroke="#C8553D" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <!-- Legs -->
+  <ellipse cx="78" cy="148" rx="10" ry="16" fill="#C8553D"/>
+  <ellipse cx="102" cy="148" rx="10" ry="16" fill="#C8553D"/>
+  <!-- Feet / pouch hint -->
+  <ellipse cx="78" cy="162" rx="13" ry="6" fill="#A8402E"/>
+  <ellipse cx="102" cy="162" rx="13" ry="6" fill="#A8402E"/>
+  <!-- Tail -->
+  <path d="M118 130 Q140 140 135 158 Q130 168 120 162" stroke="#C8553D" stroke-width="12" stroke-linecap="round" fill="none"/>
+</svg>

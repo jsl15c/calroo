@@ -26,7 +26,6 @@ export class Tracer {
   private steps: TraceStep[];
   private handoff: TraceLog["handoff"];
   private error: TraceLog["error"];
-  private activeStep: { name: string; startedAt: number } | null;
 
   constructor(userId: string) {
     this.traceId = `tr_${Math.random().toString(36).slice(2, 10)}`;
@@ -106,9 +105,7 @@ export class Tracer {
       const label = s.agent
         ? `${String(s.step).toUpperCase()} → ${s.agent}`
         : String(s.step).toUpperCase();
-      lines.push(
-        `  ${i + 1}. ${label.padEnd(40)} ${String(s.duration_ms)}ms`,
-      );
+      lines.push(`  ${i + 1}. ${label.padEnd(40)} ${String(s.duration_ms)}ms`);
       if (s.reasoning) lines.push(`     "${s.reasoning}"`);
       if (s.result) lines.push(`     ${s.result}`);
     }

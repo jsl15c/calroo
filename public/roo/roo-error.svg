@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+  <!-- Roo error — holding a cracked monocle -->
+  <!-- Body -->
+  <ellipse cx="60" cy="82" rx="22" ry="26" fill="#C8553D" opacity="0.9"/>
+  <!-- Head -->
+  <ellipse cx="60" cy="50" rx="18" ry="20" fill="#C8553D"/>
+  <!-- Ears -->
+  <ellipse cx="49" cy="33" rx="5" ry="10" fill="#C8553D"/>
+  <ellipse cx="71" cy="33" rx="5" ry="10" fill="#C8553D"/>
+  <ellipse cx="49" cy="33" rx="3" ry="7" fill="#E8856F"/>
+  <ellipse cx="71" cy="33" rx="3" ry="7" fill="#E8856F"/>
+  <!-- Eyes — one squinting (monocle side) -->
+  <circle cx="54" cy="51" r="2.5" fill="#1C1917"/>
+  <ellipse cx="66" cy="51" rx="2.5" ry="1.5" fill="#1C1917"/>
+  <!-- Cracked monocle -->
+  <circle cx="66" cy="51" r="7" stroke="#D4A843" stroke-width="1.5" fill="none"/>
+  <path d="M63 46 L68 56" stroke="#9B2C2C" stroke-width="1" stroke-linecap="round"/>
+  <path d="M65 47 L67 52" stroke="#9B2C2C" stroke-width="0.8" stroke-linecap="round"/>
+  <!-- Monocle chain -->
+  <path d="M72 48 Q76 45 78 50" stroke="#D4A843" stroke-width="1" stroke-linecap="round" fill="none"/>
+  <!-- Muzzle -->
+  <ellipse cx="60" cy="59" rx="6" ry="4" fill="#E8856F"/>
+  <!-- Slight flustered expression -->
+  <path d="M57 61 Q60 62.5 63 61" stroke="#4A2C2A" stroke-width="1" stroke-linecap="round" fill="none"/>
+</svg>

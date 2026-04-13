@@ -2,7 +2,7 @@
 // Never writes to Google Calendar directly — always returns a ConfirmationCard.
 
 import type { ConfirmationCard } from "@/lib/types";
-import { callClaude, transformClaudeStream } from "@/server/ai/claude";
+import { callClaude } from "@/server/ai/claude";
 import { buildSchedulerPrompt } from "./prompts/scheduler-prompt";
 import type { AgentContext, AgentResponse, HandoffSignal } from "./types";
 
@@ -24,6 +24,8 @@ export async function schedulerAgent(
     temperature: 0.5,
     stream: false,
     apiKey: ctx.apiKey,
+    gatewayUrl: ctx.aiGatewayUrl,
+    aiBinding: ctx.aiBinding,
   });
 
   const text = result.text.trim();

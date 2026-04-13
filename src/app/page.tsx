@@ -1,65 +1,166 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Image from "next/image";
+import { getGreeting } from "@/lib/utils";
+
+export default function LandingPage() {
+  const greeting = getGreeting();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "var(--color-parchment)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "var(--space-8)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "var(--space-6)",
+          maxWidth: "400px",
+          width: "100%",
+          animation: "pageEntrance 500ms ease-out",
+        }}
+      >
+        {/* Roo illustration */}
+        <div
+          style={{
+            animation: "rooEntrance 500ms ease-out 200ms both",
+          }}
+        >
+          <Image
+            src="/roo/roo-hero.svg"
+            alt="Roo — CalRoo's kangaroo concierge"
+            width={180}
+            height={180}
+            priority
+          />
+        </div>
+
+        {/* Wordmark */}
+        <div style={{ textAlign: "center" }}>
+          <h1
+            style={{
+              fontFamily: "var(--font-playfair), Georgia, serif",
+              fontSize: "var(--text-hero)",
+              fontWeight: 400,
+              color: "var(--color-ink)",
+              margin: 0,
+              letterSpacing: "-0.02em",
+              lineHeight: 1,
+            }}
+          >
+            CalRoo
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p
+            style={{
+              fontFamily: "var(--font-dm-sans), sans-serif",
+              fontSize: "var(--text-lg)",
+              color: "var(--color-ink-soft)",
+              margin: "var(--space-2) 0 0",
+              fontWeight: 400,
+            }}
+          >
+            Your calendar, attended to.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        {/* Sign in button */}
+        <a
+          href="/api/auth/google"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "var(--space-3)",
+            height: "48px",
+            padding: "0 var(--space-8)",
+            backgroundColor: "var(--color-mahogany)",
+            color: "white",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "var(--text-base)",
+            fontFamily: "var(--font-dm-sans), sans-serif",
+            fontWeight: 500,
+            textDecoration: "none",
+            boxShadow: "var(--shadow-md)",
+            transition: "background-color 150ms ease, transform 100ms ease",
+            width: "100%",
+            maxWidth: "280px",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
+              "var(--color-mahogany-soft)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.backgroundColor =
+              "var(--color-mahogany)";
+          }}
+        >
+          <GoogleIcon />
+          Sign in with Google
+        </a>
+
+        {/* Time-aware butler greeting */}
+        <p
+          style={{
+            fontFamily: "var(--font-dm-sans), sans-serif",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-ink-faint)",
+            fontStyle: "italic",
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
+          &ldquo;{greeting}&rdquo;
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes pageEntrance {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes rooEntrance {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </main>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+        fill="#4285F4"
+      />
+      <path
+        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+        fill="#34A853"
+      />
+      <path
+        d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+        fill="#EA4335"
+      />
+    </svg>
   );
 }

@@ -4,9 +4,7 @@ import { callClaude, transformClaudeStream } from "@/server/ai/claude";
 import { buildCalendarPrompt } from "./prompts/calendar-prompt";
 import type { AgentContext, AgentResponse, HandoffSignal } from "./types";
 
-export async function calendarAgent(
-  ctx: AgentContext,
-): Promise<AgentResponse> {
+export async function calendarAgent(ctx: AgentContext): Promise<AgentResponse> {
   const system = buildCalendarPrompt(ctx);
   const messages = ctx.messages.map((m) => ({
     role: m.role as "user" | "assistant",
@@ -20,6 +18,8 @@ export async function calendarAgent(
     temperature: 0.7,
     stream: true,
     apiKey: ctx.apiKey,
+    gatewayUrl: ctx.aiGatewayUrl,
+    aiBinding: ctx.aiBinding,
   });
 
   // We need to peek at the stream to check for handoff signals.

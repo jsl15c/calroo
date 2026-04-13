@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+  <!-- Roo expired — tipping his hat -->
+  <!-- Body -->
+  <ellipse cx="60" cy="82" rx="22" ry="26" fill="#C8553D" opacity="0.9"/>
+  <!-- Tailcoat -->
+  <path d="M40 96 Q50 112 60 109 Q70 112 80 96" fill="#4A2C2A"/>
+  <!-- Head -->
+  <ellipse cx="60" cy="50" rx="18" ry="20" fill="#C8553D"/>
+  <!-- Top hat -->
+  <rect x="44" y="28" width="32" height="18" rx="2" fill="#1C1917"/>
+  <rect x="40" y="44" width="40" height="5" rx="2" fill="#1C1917"/>
+  <!-- Hat brim tipping slightly right -->
+  <rect x="42" y="44" width="38" height="5" rx="2" fill="#292524" transform="rotate(-5 60 46)"/>
+  <!-- Ears (peeking under hat) -->
+  <ellipse cx="49" cy="36" rx="5" ry="8" fill="#C8553D"/>
+  <ellipse cx="71" cy="36" rx="5" ry="8" fill="#C8553D"/>
+  <!-- Eyes — friendly farewell look -->
+  <circle cx="54" cy="52" r="2.5" fill="#1C1917"/>
+  <circle cx="66" cy="52" r="2.5" fill="#1C1917"/>
+  <!-- Smile -->
+  <path d="M55 59 Q60 63 65 59" stroke="#4A2C2A" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Arm tipping hat -->
+  <path d="M76 65 Q80 55 78 46" stroke="#C8553D" stroke-width="7" stroke-linecap="round" fill="none"/>
+</svg>

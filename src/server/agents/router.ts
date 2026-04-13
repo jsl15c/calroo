@@ -2,14 +2,16 @@
 // Fast: no streaming, no calendar data, short output.
 
 import type { ChatMessage } from "@/lib/types";
-import { callClaude } from "@/server/ai/claude";
+import { type AiBinding, callClaude } from "@/server/ai/claude";
 import { buildRouterPrompt } from "./prompts/router-prompt";
 import type { RouterResult } from "./types";
 
 export async function routerAgent(
   message: string,
   recentHistory: ChatMessage[],
-  apiKey: string,
+  apiKey: string | null,
+  gatewayUrl?: string | null,
+  aiBinding?: AiBinding | null,
 ): Promise<RouterResult & { inputTokens: number; outputTokens: number }> {
   const system = buildRouterPrompt(recentHistory);
 
@@ -20,9 +22,15 @@ export async function routerAgent(
     temperature: 0.2,
     stream: false,
     apiKey,
+    gatewayUrl,
+    aiBinding,
   });
 
-  return { ...parseRouterResponse(result.text), inputTokens: result.inputTokens, outputTokens: result.outputTokens };
+  return {
+    ...parseRouterResponse(result.text),
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+  };
 }
 
 /** Parses Claude's JSON router response with a sensible fallback. */
@@ -44,9 +52,16 @@ export function parseRouterResponse(raw: string): RouterResult {
 
     return {
       agent,
-      confidence: typeof parsed.confidence === "number" ? Math.min(1, Math.max(0, parsed.confidence)) : 0.5,
-      reasoning: typeof parsed.reasoning === "string" ? parsed.reasoning : "Unable to determine routing",
-      clarification: typeof parsed.clarification === "string" ? parsed.clarification : null,
+      confidence:
+        typeof parsed.confidence === "number"
+          ? Math.min(1, Math.max(0, parsed.confidence))
+          : 0.5,
+      reasoning:
+        typeof parsed.reasoning === "string"
+          ? parsed.reasoning
+          : "Unable to determine routing",
+      clarification:
+        typeof parsed.clarification === "string" ? parsed.clarification : null,
     };
   } catch {
     // Fallback: default to calendar agent with low confidence
@@ -54,7 +69,8 @@ export function parseRouterResponse(raw: string): RouterResult {
       agent: "calendar",
       confidence: 0.4,
       reasoning: "Router response could not be parsed",
-      clarification: "I want to make sure I help you correctly — are you looking to check your schedule, make a change, or brainstorm ideas?",
+      clarification:
+        "I want to make sure I help you correctly — are you looking to check your schedule, make a change, or brainstorm ideas?",
     };
   }
 }

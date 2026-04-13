@@ -1,6 +1,7 @@
 // Agent-internal types — server-only.
 
 import type { CalendarEvent, ChatMessage, ConfirmationCard } from "@/lib/types";
+import type { AiBinding } from "@/server/ai/claude";
 
 export type AgentName = "calendar" | "scheduler" | "idea";
 
@@ -31,5 +32,10 @@ export type AgentContext = {
   now: string; // ISO timestamp
   routerReasoning: string;
   routerConfidence: number;
-  apiKey: string; // Anthropic API key passed from env
+  /** Anthropic API key — null when using the CF AI binding instead. */
+  apiKey: string | null;
+  /** Cloudflare Workers AI binding. When present, used instead of the Anthropic API. */
+  aiBinding?: AiBinding | null;
+  /** When set, Anthropic API calls route through the Cloudflare AI Gateway proxy. */
+  aiGatewayUrl?: string | null;
 };

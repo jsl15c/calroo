@@ -18,6 +18,8 @@ export async function ideaAgent(ctx: AgentContext): Promise<AgentResponse> {
     temperature: 0.7,
     stream: true,
     apiKey: ctx.apiKey,
+    gatewayUrl: ctx.aiGatewayUrl,
+    aiBinding: ctx.aiBinding,
   });
 
   const [peekStream, passStream] = claudeStream.tee();
@@ -51,7 +53,8 @@ async function tryParseHandoffFromStream(
         if (text) {
           try {
             const parsed = JSON.parse(text.trim()) as Record<string, unknown>;
-            if (parsed.type === "handoff") return parsed as unknown as HandoffSignal;
+            if (parsed.type === "handoff")
+              return parsed as unknown as HandoffSignal;
           } catch {
             // not yet complete JSON
           }
