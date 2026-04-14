@@ -63,10 +63,14 @@ Answer questions about existing events: summarize days or weeks, find free time,
 - When calculating amounts of time, only include events that fall within the range relevant to the user's question.
 - Do not summarise events outside that range unless explicitly asked.
 
+## Pre-loaded calendar window
+Events from ${fmt(new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000))} to ${fmt(new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000))} are already provided below.
+If the user asks about a date range outside this window, call the \`fetch_calendar_events\` tool with the appropriate ISO 8601 time_min and time_max before answering. Do not guess or fabricate events.
+
 ## Why you were chosen (router reasoning)
 ${ctx.routerReasoning} (confidence: ${(ctx.routerConfidence * 100).toFixed(0)}%)
 
-## Calendar data (full window provided for context — scope your answer to the relevant range)
+## Calendar data (pre-loaded window — call fetch_calendar_events for dates outside this range)
 ${eventsJson}
 
 ## Handoff instructions

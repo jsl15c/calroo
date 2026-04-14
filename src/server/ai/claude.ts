@@ -9,9 +9,33 @@ export const OR_MODEL = "anthropic/claude-haiku-4.5";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type OpenRouterMessage = {
-  role: "user" | "assistant";
-  content: string;
+export type OpenRouterToolCall = {
+  id: string;
+  type: "function";
+  function: { name: string; arguments: string };
+};
+
+export type OpenRouterTool = {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+};
+
+export type OpenRouterMessage =
+  | { role: "user"; content: string }
+  | {
+      role: "assistant";
+      content: string | null;
+      tool_calls?: OpenRouterToolCall[];
+    }
+  | { role: "tool"; tool_call_id: string; content: string };
+
+export type OpenRouterNonStreamResult = {
+  text: string;
+  toolCalls: OpenRouterToolCall[];
 };
 
 export type OpenRouterCallOptions = {
@@ -21,14 +45,15 @@ export type OpenRouterCallOptions = {
   temperature?: number;
   stream?: boolean;
   apiKey: string;
+  tools?: OpenRouterTool[];
 };
 
 // ─── Overloads ────────────────────────────────────────────────────────────────
 
-/** Non-streaming call — returns the full response text. */
+/** Non-streaming call — returns full text and any tool calls. */
 export async function callClaude(
   options: OpenRouterCallOptions & { stream: false },
-): Promise<{ text: string }>;
+): Promise<OpenRouterNonStreamResult>;
 
 /** Streaming call — returns the raw OpenRouter SSE stream. */
 export async function callClaude(
@@ -37,7 +62,7 @@ export async function callClaude(
 
 export async function callClaude(
   options: OpenRouterCallOptions,
-): Promise<{ text: string } | ReadableStream<Uint8Array>> {
+): Promise<OpenRouterNonStreamResult | ReadableStream<Uint8Array>> {
   const {
     system,
     messages,
@@ -45,7 +70,17 @@ export async function callClaude(
     temperature = 0.7,
     stream = false,
     apiKey,
+    tools,
   } = options;
+
+  const body: Record<string, unknown> = {
+    model: OR_MODEL,
+    messages: [{ role: "system", content: system }, ...messages],
+    max_tokens,
+    temperature,
+    stream,
+  };
+  if (tools?.length) body.tools = tools;
 
   const response = await fetch(OR_BASE_URL, {
     method: "POST",
@@ -54,13 +89,7 @@ export async function callClaude(
       Authorization: `Bearer ${apiKey}`,
       "X-Title": "CalRoo",
     },
-    body: JSON.stringify({
-      model: OR_MODEL,
-      messages: [{ role: "system", content: system }, ...messages],
-      max_tokens,
-      temperature,
-      stream,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -77,9 +106,18 @@ export async function callClaude(
   }
 
   const data = (await response.json()) as {
-    choices: Array<{ message: { content: string } }>;
+    choices: Array<{
+      message: {
+        content: string | null;
+        tool_calls?: OpenRouterToolCall[];
+      };
+    }>;
   };
-  return { text: data.choices[0]?.message?.content ?? "" };
+  const choice = data.choices[0]?.message;
+  return {
+    text: choice?.content ?? "",
+    toolCalls: choice?.tool_calls ?? [],
+  };
 }
 
 // ─── Stream transformer ───────────────────────────────────────────────────────

@@ -29,10 +29,14 @@ export function DashboardClient({ session }: DashboardClientProps) {
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(async (timeMin?: string, timeMax?: string) => {
     setIsLoadingEvents(true);
     try {
-      const response = await fetch("/api/calendar/events");
+      const params = new URLSearchParams();
+      if (timeMin) params.set("timeMin", timeMin);
+      if (timeMax) params.set("timeMax", timeMax);
+      const url = `/api/calendar/events${params.size ? `?${params}` : ""}`;
+      const response = await fetch(url);
       if (response.ok) {
         const data = (await response.json()) as { events: CalendarEvent[] };
         setEvents(data.events);
@@ -43,10 +47,6 @@ export function DashboardClient({ session }: DashboardClientProps) {
       setIsLoadingEvents(false);
     }
   }, []);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
 
   // Compute the visible date range and label for both modes
   const { currentLabel, offset, viewRange } = useMemo(() => {
@@ -83,6 +83,16 @@ export function DashboardClient({ session }: DashboardClientProps) {
       },
     };
   }, [viewMode, weekOffset, monthOffset]);
+
+  // Re-fetch whenever the visible range changes (navigation or view mode switch).
+  useEffect(() => {
+    fetchEvents(viewRange.start, viewRange.end);
+  }, [fetchEvents, viewRange.start, viewRange.end]);
+
+  // Refresh the current view after a calendar write from the chat panel.
+  const refreshCurrentView = useCallback(() => {
+    fetchEvents(viewRange.start, viewRange.end);
+  }, [fetchEvents, viewRange.start, viewRange.end]);
 
   const handleViewModeChange = (mode: "week" | "month") => {
     setViewMode(mode);
@@ -154,10 +164,9 @@ export function DashboardClient({ session }: DashboardClientProps) {
           <ChatPanel
             events={events}
             timezone={timezone}
-            onCalendarRefresh={fetchEvents}
+            onCalendarRefresh={refreshCurrentView}
             isCollapsed={false}
             onToggleCollapse={() => setChatCollapsed(true)}
-            viewContext={viewRange}
           />
         )}
 

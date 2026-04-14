@@ -104,6 +104,7 @@ export async function POST(request: Request): Promise<Response> {
       routerReasoning: routerResult.reasoning,
       routerConfidence: routerResult.confidence,
       apiKey,
+      accessToken: session.accessToken,
     };
 
     // 8. Dispatch to target agent

@@ -53,79 +53,40 @@ export function Header({
   };
 
   return (
-    <header
-      style={{
-        height: "56px",
-        backgroundColor: "var(--color-parchment)",
-        borderBottom: "1px solid var(--color-cream)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 var(--space-6)",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-      }}
-    >
+    <header className="h-14 bg-(--color-parchment) border-b border-(--color-cream) flex items-center justify-between px-6 sticky top-0 z-10">
       {/* Left: Wordmark */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
-      >
+      <div className="flex items-center gap-2">
         <Image
           src="/roo/roo-avatar.svg"
           alt="Roo"
           width={24}
           height={24}
-          style={{ flexShrink: 0 }}
+          className="shrink-0"
         />
         <span
-          style={{
-            fontFamily: "var(--font-playfair), Georgia, serif",
-            fontSize: "var(--text-lg)",
-            fontWeight: 400,
-            color: "var(--color-ink)",
-            letterSpacing: "-0.02em",
-          }}
+          className="text-lg font-normal text-(--color-ink) tracking-[-0.02em]"
+          style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
         >
           CalRoo
         </span>
       </div>
 
       {/* Center: View toggle + navigation */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}
-      >
+      <div className="flex items-center gap-3">
         {/* Week / Month toggle */}
-        <div
-          style={{
-            display: "flex",
-            border: "1px solid var(--color-cream)",
-            borderRadius: "var(--radius-sm)",
-            overflow: "hidden",
-          }}
-        >
+        <div className="flex border border-(--color-cream) rounded overflow-hidden">
           {(["week", "month"] as const).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => onViewModeChange(mode)}
-              style={{
-                height: "32px",
-                padding: "0 var(--space-3)",
-                border: "none",
-                backgroundColor:
-                  viewMode === mode
-                    ? "var(--color-mahogany)"
-                    : "var(--color-linen)",
-                color:
-                  viewMode === mode ? "white" : "var(--color-ink-soft)",
-                fontSize: "var(--text-sm)",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontWeight: 500,
-                cursor: "pointer",
-                transition: "background-color 150ms ease, color 150ms ease",
-                textTransform: "capitalize",
-              }}
+              className={[
+                "h-8 px-3 border-0 text-sm font-medium cursor-pointer transition-colors duration-150 ease-in-out capitalize",
+                viewMode === mode
+                  ? "bg-(--color-mahogany) text-white"
+                  : "bg-(--color-linen) text-(--color-ink-soft)",
+              ].join(" ")}
+              style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}
             >
               {mode}
             </button>
@@ -133,33 +94,16 @@ export function Header({
         </div>
 
         {/* Navigation */}
-        <div
-          style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
-        >
-          <span
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--color-ink-soft)",
-            }}
-          >
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-(--color-ink-soft)">
             {currentLabel}
           </span>
           {offset !== 0 && (
             <button
               type="button"
               onClick={onToday}
-              style={{
-                height: "32px",
-                padding: "0 var(--space-3)",
-                backgroundColor: "var(--color-linen)",
-                border: "1px solid var(--color-cream)",
-                borderRadius: "var(--radius-sm)",
-                fontSize: "var(--text-sm)",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontWeight: 500,
-                color: "var(--color-ink)",
-                cursor: "pointer",
-              }}
+              className="h-8 px-3 bg-(--color-linen) border border-(--color-cream) rounded text-sm font-medium text-(--color-ink) cursor-pointer"
+              style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}
             >
               Today
             </button>
@@ -168,7 +112,7 @@ export function Header({
             type="button"
             onClick={onPrev}
             aria-label={`Previous ${viewMode}`}
-            style={iconButtonStyle}
+            className={iconButtonClass}
           >
             <ChevronLeft size={16} strokeWidth={1.5} />
           </button>
@@ -176,7 +120,7 @@ export function Header({
             type="button"
             onClick={onNext}
             aria-label={`Next ${viewMode}`}
-            style={iconButtonStyle}
+            className={iconButtonClass}
           >
             <ChevronRight size={16} strokeWidth={1.5} />
           </button>
@@ -184,14 +128,12 @@ export function Header({
       </div>
 
       {/* Right: Dark mode + user */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
-      >
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={toggleDark}
           aria-label="Toggle dark mode"
-          style={iconButtonStyle}
+          className={iconButtonClass}
         >
           {isDark ? (
             <Sun size={16} strokeWidth={1.5} />
@@ -200,91 +142,35 @@ export function Header({
           )}
         </button>
 
-        <div style={{ position: "relative" }}>
+        <div className="relative">
           <button
             type="button"
             onClick={() => setShowUserMenu((v) => !v)}
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "var(--radius-full)",
-              overflow: "hidden",
-              border: "2px solid var(--color-cream)",
-              cursor: "pointer",
-              padding: 0,
-              backgroundColor: "var(--color-mahogany)",
-              color: "white",
-              fontSize: "var(--text-xs)",
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className="w-8 h-8 rounded-full overflow-hidden border-2 border-(--color-cream) cursor-pointer p-0 bg-(--color-mahogany) text-white text-xs font-semibold flex items-center justify-center"
           >
             {session.avatarUrl ? (
-              <Image src={""} alt={session.name} width={32} height={32} />
+              // biome-ignore lint/style/noNonNullAssertion: need url
+              <img src={session.avatarUrl} alt={session.name} width={32} height={32} />
             ) : (
               session.name.charAt(0).toUpperCase()
             )}
           </button>
 
           {showUserMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: "calc(100% + var(--space-2))",
-                right: 0,
-                backgroundColor: "var(--color-parchment)",
-                border: "1px solid var(--color-cream)",
-                borderRadius: "var(--radius-md)",
-                boxShadow: "var(--shadow-lg)",
-                minWidth: "180px",
-                padding: "var(--space-2)",
-                zIndex: 100,
-              }}
-            >
-              <div
-                style={{
-                  padding: "var(--space-2) var(--space-3)",
-                  borderBottom: "1px solid var(--color-cream)",
-                  marginBottom: "var(--space-2)",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    fontWeight: 500,
-                    color: "var(--color-ink)",
-                  }}
-                >
+            <div className="absolute top-[calc(100%+8px)] right-0 bg-(--color-parchment) border border-(--color-cream) rounded-md shadow-(--shadow-lg) min-w-[180px] p-2 z-100">
+              <div className="py-2 px-3 border-b border-(--color-cream) mb-2">
+                <div className="text-sm font-medium text-(--color-ink)">
                   {session.name}
                 </div>
-                <div
-                  style={{
-                    fontSize: "var(--text-xs)",
-                    color: "var(--color-ink-soft)",
-                  }}
-                >
+                <div className="text-xs text-(--color-ink-soft)">
                   {session.email}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleLogout}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-2)",
-                  width: "100%",
-                  padding: "var(--space-2) var(--space-3)",
-                  border: "none",
-                  background: "none",
-                  cursor: "pointer",
-                  fontSize: "var(--text-sm)",
-                  color: "var(--color-ink)",
-                  borderRadius: "var(--radius-sm)",
-                  fontFamily: "var(--font-dm-sans), sans-serif",
-                }}
+                className="flex items-center gap-2 w-full py-2 px-3 border-0 bg-transparent cursor-pointer text-sm text-(--color-ink) rounded"
+                style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}
               >
                 <LogOut size={14} strokeWidth={1.5} />
                 Until next time
@@ -297,15 +183,5 @@ export function Header({
   );
 }
 
-const iconButtonStyle: React.CSSProperties = {
-  width: "36px",
-  height: "36px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "none",
-  background: "none",
-  borderRadius: "var(--radius-sm)",
-  cursor: "pointer",
-  color: "var(--color-ink-soft)",
-};
+const iconButtonClass =
+  "w-9 h-9 flex items-center justify-center border-0 bg-transparent rounded cursor-pointer text-(--color-ink-soft)";

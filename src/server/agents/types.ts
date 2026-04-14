@@ -32,4 +32,5 @@ export type AgentContext = {
   routerReasoning: string;
   routerConfidence: number;
   apiKey: string; // OpenRouter API key
+  accessToken: string; // Google OAuth access token (for on-demand calendar fetches)
 };
