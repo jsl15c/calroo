@@ -94,7 +94,11 @@ describe("fetchEvents", () => {
   it("throws generic error on non-401 failure", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        text: vi.fn().mockResolvedValue("Internal Server Error"),
+      }),
     );
     await expect(fetchEvents("token", new Date(), new Date())).rejects.toThrow(
       "Google Calendar API error",

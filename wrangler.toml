@@ -3,17 +3,6 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".open-next/worker"
 
-# Cloudflare Workers AI binding
-# Grants access to env.AI.run() for inference on Cloudflare's network.
-# Used in conjunction with CLOUDFLARE_AI_GATEWAY_URL to route
-# Anthropic API calls through the AI Gateway for observability and caching.
-[ai]
-binding = "AI"
-
-# KV, R2, D1 bindings go here if added in future
-# [[kv_namespaces]]
-# binding = "KV"
-# id = "..."
-
-# Environment variables are managed in Cloudflare Pages dashboard.
-# Do NOT put secrets here. See .env.example for required vars.
+# Secrets go in Cloudflare Pages dashboard, not here.
+# Required vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI,
+#                SESSION_SECRET, OPENROUTER_API_KEY, NEXT_PUBLIC_APP_URL

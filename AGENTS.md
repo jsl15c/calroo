@@ -365,7 +365,7 @@ async function routerAgent(
 - **Temperature 0.2** for the router (deterministic classification)
 - **Temperature 0.7** for Calendar and Idea agents (balanced)
 - **Temperature 0.5** for Scheduler agent (precise about times/details, some flexibility in drafting)
-- **max_tokens**: 200 for router, 2048 for all other agents
+- **max_tokens**: 200 for router, 800 for all other agents
 - All agents use streaming except the router
 
 ### Prompt construction rules

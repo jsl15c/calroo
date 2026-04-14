@@ -45,9 +45,10 @@ export function ChatPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-scroll when message count changes
   useEffect(() => {
     scrollToBottom();
-  }, [scrollToBottom]);
+  }, [messages.length, scrollToBottom]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -90,7 +91,7 @@ export function ChatPanel({
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text.trim(), history, timezone }),
+          body: JSON.stringify({ message: text.trim(), history, timezone, viewContext }),
           signal: controller.signal,
         });
 
@@ -216,6 +217,7 @@ export function ChatPanel({
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        overflow: "hidden",
         backgroundColor: "var(--color-parchment)",
         borderLeft: "1px solid var(--color-cream)",
         boxShadow: "-4px 0 16px rgba(28, 25, 23, 0.06)",
@@ -269,11 +271,12 @@ export function ChatPanel({
         aria-live="polite"
         style={{
           flex: 1,
+          minHeight: 0,
           overflowY: "auto",
           padding: "var(--space-4)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-5)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-5)",
         }}
       >
         {/* Welcome message */}

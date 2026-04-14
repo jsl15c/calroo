@@ -96,6 +96,21 @@ export function eventPositionStyle(
   };
 }
 
+/** Returns the first day of the month containing `date` at midnight. */
+export function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+}
+
+/** Returns the last day of the month containing `date` at end-of-day. */
+export function endOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+}
+
+/** Formats a Date as "April 2026". */
+export function formatMonthYear(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
 /** Generates a short unique id (not cryptographically secure — UI use only). */
 export function shortId(): string {
   return Math.random().toString(36).slice(2, 10);

@@ -1,6 +1,5 @@
 // POST /api/chat — orchestrator: router → agent → stream/confirmation.
 
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import type { ChatMessage } from "@/lib/types";
@@ -9,7 +8,6 @@ import { ideaAgent } from "@/server/agents/idea-agent";
 import { routerAgent } from "@/server/agents/router";
 import { schedulerAgent } from "@/server/agents/scheduler-agent";
 import type { AgentContext, AgentName } from "@/server/agents/types";
-import type { AiBinding } from "@/server/ai/claude";
 import { requireSession } from "@/server/auth/middleware";
 import { fetchEvents } from "@/server/calendar/google-calendar";
 import { Tracer } from "@/server/observability/tracer";
@@ -52,38 +50,21 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const { message, history, timezone } = parsed.data;
+  const apiKey = env.OPENROUTER_API_KEY;
 
-  // 3. Get Cloudflare AI binding if available (CF Workers runtime only)
-  let aiBinding: AiBinding | null = null;
-  try {
-    const cfCtx = getCloudflareContext();
-    aiBinding =
-      ((cfCtx.env as Record<string, unknown>).AI as AiBinding) ?? null;
-  } catch {
-    // Not in CF Workers environment (local next dev) — fall back to API key
-  }
-
-  // 4. Start trace
+  // 3. Start trace
   const trace = new Tracer(session.email.split("@")[0] ?? "user");
 
   try {
-    // 5. Router Agent — classify intent
+    // 4. Router Agent — classify intent
     const routerStart = Date.now();
     const recentHistory = history.slice(-3) as ChatMessage[];
-    const routerResult = await routerAgent(
-      message,
-      recentHistory,
-      env.ANTHROPIC_API_KEY,
-      env.CLOUDFLARE_AI_GATEWAY_URL,
-      aiBinding,
-    );
+    const routerResult = await routerAgent(message, recentHistory, apiKey);
     trace.step("router", {
       agent: routerResult.agent,
       confidence: routerResult.confidence,
       reasoning: routerResult.reasoning,
       duration_ms: Date.now() - routerStart,
-      input_tokens: routerResult.inputTokens,
-      output_tokens: routerResult.outputTokens,
     });
 
     // 5. Low confidence — return clarifying question directly
@@ -122,32 +103,30 @@ export async function POST(request: Request): Promise<Response> {
       now: now.toISOString(),
       routerReasoning: routerResult.reasoning,
       routerConfidence: routerResult.confidence,
-      apiKey: env.ANTHROPIC_API_KEY,
-      aiBinding,
-      aiGatewayUrl: env.CLOUDFLARE_AI_GATEWAY_URL,
+      apiKey,
     };
 
     // 8. Dispatch to target agent
     let targetAgent = routerResult.agent;
     const agentStart = Date.now();
-    let agentResponse = await dispatchAgent(targetAgent, ctx);
+    let finalResponse = await dispatchAgent(targetAgent, ctx);
     trace.step("agent", {
       agent: targetAgent,
       duration_ms: Date.now() - agentStart,
-      result: agentResponse.type,
+      result: finalResponse.type,
     });
 
     // 9. Handle handoff (max 1)
-    if (agentResponse.type === "handoff") {
-      const signal = agentResponse.signal;
+    if (finalResponse.type === "handoff") {
+      const signal = finalResponse.signal;
       trace.recordHandoff(signal.from, signal.to, signal.reason);
 
       const handoffStart = Date.now();
-      agentResponse = await dispatchAgent(signal.to, ctx);
+      finalResponse = await dispatchAgent(signal.to, ctx);
       trace.step("agent_handoff", {
         agent: signal.to,
         duration_ms: Date.now() - handoffStart,
-        result: agentResponse.type,
+        result: finalResponse.type,
       });
       targetAgent = signal.to;
     }
@@ -162,15 +141,16 @@ export async function POST(request: Request): Promise<Response> {
     const responseHeaders: Record<string, string> = {};
     if (updatedCookie) responseHeaders["Set-Cookie"] = updatedCookie;
 
-    if (agentResponse.type === "confirmation") {
+    if (finalResponse.type === "confirmation") {
       responseHeaders["Content-Type"] = "text/event-stream";
       responseHeaders["Cache-Control"] = "no-cache";
       responseHeaders.Connection = "keep-alive";
 
+      const card = finalResponse.card;
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         start(controller) {
-          const event = `event: confirmation\ndata: ${JSON.stringify(agentResponse.card)}\n\nevent: done\ndata: {}\n\n`;
+          const event = `event: confirmation\ndata: ${JSON.stringify(card)}\n\nevent: done\ndata: {}\n\n`;
           controller.enqueue(encoder.encode(event));
           controller.close();
         },
@@ -179,17 +159,16 @@ export async function POST(request: Request): Promise<Response> {
       return new Response(stream, { status: 200, headers: responseHeaders });
     }
 
-    if (agentResponse.type === "stream") {
+    if (finalResponse.type === "stream") {
       responseHeaders["Content-Type"] = "text/event-stream";
       responseHeaders["Cache-Control"] = "no-cache";
       responseHeaders.Connection = "keep-alive";
-      return new Response(agentResponse.stream, {
+      return new Response(finalResponse.stream, {
         status: 200,
         headers: responseHeaders,
       });
     }
 
-    // Fallback — handoff without resolution (shouldn't happen)
     return jsonError("Agent could not process request", 500);
   } catch (err) {
     trace.recordError("orchestrator", "UnexpectedError", "Internal error");
@@ -222,7 +201,6 @@ function jsonError(message: string, status: number): Response {
   });
 }
 
-/** Wraps a plain text string as a minimal SSE stream response. */
 function sseResponse(text: string, updatedCookie: string | null): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

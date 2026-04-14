@@ -2,19 +2,29 @@
 
 import { PanelRightOpen } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { CalendarMonthGrid } from "@/components/calendar/CalendarMonthGrid";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { Header } from "@/components/layout/Header";
 import type { CalendarEvent, SessionPayload } from "@/lib/types";
-import { addDays, formatDayHeader, startOfWeek } from "@/lib/utils";
+import {
+  addDays,
+  endOfMonth,
+  formatDayHeader,
+  formatMonthYear,
+  startOfMonth,
+  startOfWeek,
+} from "@/lib/utils";
 
 type DashboardClientProps = {
   session: SessionPayload;
 };
 
 export function DashboardClient({ session }: DashboardClientProps) {
+  const [viewMode, setViewMode] = useState<"week" | "month">("week");
   const [weekOffset, setWeekOffset] = useState(0);
+  const [monthOffset, setMonthOffset] = useState(0);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [chatCollapsed, setChatCollapsed] = useState(false);
@@ -38,14 +48,63 @@ export function DashboardClient({ session }: DashboardClientProps) {
     fetchEvents();
   }, [fetchEvents]);
 
-  const currentWeekLabel = (() => {
-    const base = startOfWeek(new Date());
-    base.setDate(base.getDate() + weekOffset * 7);
-    const end = addDays(base, 6);
-    const { date: startDate } = formatDayHeader(base);
-    const { date: endDate } = formatDayHeader(end);
-    return `${startDate} – ${endDate}`;
-  })();
+  // Compute the visible date range and label for both modes
+  const { currentLabel, offset, viewRange } = useMemo(() => {
+    const today = new Date();
+
+    if (viewMode === "week") {
+      const base = startOfWeek(today);
+      base.setDate(base.getDate() + weekOffset * 7);
+      const end = addDays(base, 6);
+      const { date: startDate } = formatDayHeader(base);
+      const { date: endDate } = formatDayHeader(end);
+      return {
+        currentLabel: `${startDate} – ${endDate}`,
+        offset: weekOffset,
+        viewRange: {
+          start: base.toISOString(),
+          end: end.toISOString(),
+          mode: "week" as const,
+        },
+      };
+    }
+
+    // month mode
+    const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+    const start = startOfMonth(base);
+    const end = endOfMonth(base);
+    return {
+      currentLabel: formatMonthYear(base),
+      offset: monthOffset,
+      viewRange: {
+        start: start.toISOString(),
+        end: end.toISOString(),
+        mode: "month" as const,
+      },
+    };
+  }, [viewMode, weekOffset, monthOffset]);
+
+  const handleViewModeChange = (mode: "week" | "month") => {
+    setViewMode(mode);
+    // Reset offsets when switching modes so we land on "today"
+    setWeekOffset(0);
+    setMonthOffset(0);
+  };
+
+  const handlePrev = () => {
+    if (viewMode === "week") setWeekOffset((w) => w - 1);
+    else setMonthOffset((m) => m - 1);
+  };
+
+  const handleNext = () => {
+    if (viewMode === "week") setWeekOffset((w) => w + 1);
+    else setMonthOffset((m) => m + 1);
+  };
+
+  const handleToday = () => {
+    setWeekOffset(0);
+    setMonthOffset(0);
+  };
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC";
 
@@ -61,11 +120,13 @@ export function DashboardClient({ session }: DashboardClientProps) {
     >
       <Header
         session={session}
-        weekOffset={weekOffset}
-        onPrevWeek={() => setWeekOffset((w) => w - 1)}
-        onNextWeek={() => setWeekOffset((w) => w + 1)}
-        onToday={() => setWeekOffset(0)}
-        currentWeekLabel={currentWeekLabel}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        offset={offset}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        onToday={handleToday}
+        currentLabel={currentLabel}
       />
 
       <div
@@ -81,8 +142,10 @@ export function DashboardClient({ session }: DashboardClientProps) {
         <div style={{ overflow: "hidden", position: "relative" }}>
           {isLoadingEvents ? (
             <CalendarSkeleton />
-          ) : (
+          ) : viewMode === "week" ? (
             <CalendarGrid events={events} weekOffset={weekOffset} />
+          ) : (
+            <CalendarMonthGrid events={events} monthOffset={monthOffset} />
           )}
         </div>
 
@@ -94,6 +157,7 @@ export function DashboardClient({ session }: DashboardClientProps) {
             onCalendarRefresh={fetchEvents}
             isCollapsed={false}
             onToggleCollapse={() => setChatCollapsed(true)}
+            viewContext={viewRange}
           />
         )}
 

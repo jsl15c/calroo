@@ -15,41 +15,37 @@ export async function schedulerAgent(
     content: m.content,
   }));
 
-  // Non-streaming first to check for structured JSON responses
-  // (confirmation cards and handoffs are JSON, not prose)
+  // Non-streaming: confirmation cards and handoffs are JSON, not prose
   const result = await callClaude({
     system,
     messages,
-    max_tokens: 2048,
+    max_tokens: 800,
     temperature: 0.5,
     stream: false,
     apiKey: ctx.apiKey,
-    gatewayUrl: ctx.aiGatewayUrl,
-    aiBinding: ctx.aiBinding,
   });
 
   const text = result.text.trim();
 
-  // Check for confirmation card
   const confirmation = tryParseConfirmation(text);
   if (confirmation) {
     return { type: "confirmation", card: confirmation };
   }
 
-  // Check for handoff
   const handoff = tryParseHandoff(text);
   if (handoff) {
     return { type: "handoff", signal: handoff };
   }
 
-  // It's a clarifying question or prose — stream it as text
+  // Clarifying question or prose — wrap as a minimal SSE stream
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
-      // Simulate streaming for UI consistency
-      const sseEvent = `event: token\ndata: ${JSON.stringify({ text })}\n\n`;
-      controller.enqueue(encoder.encode(sseEvent));
-      controller.enqueue(encoder.encode("event: done\ndata: {}\n\n"));
+      controller.enqueue(
+        encoder.encode(
+          `event: token\ndata: ${JSON.stringify({ text })}\n\nevent: done\ndata: {}\n\n`,
+        ),
+      );
       controller.close();
     },
   });

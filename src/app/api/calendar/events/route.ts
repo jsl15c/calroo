@@ -47,7 +47,10 @@ export async function GET(request: Request): Promise<Response> {
     const status = err instanceof GoogleApiError ? err.status : 0;
     console.error("[calendar/events GET]", { status, message });
     return new Response(
-      JSON.stringify({ error: "Failed to fetch calendar events", detail: message }),
+      JSON.stringify({
+        error: "Failed to fetch calendar events",
+        detail: message,
+      }),
       { status: 502, headers: { "Content-Type": "application/json" } },
     );
   }
@@ -108,7 +111,10 @@ export async function POST(request: Request): Promise<Response> {
     const status = err instanceof GoogleApiError ? err.status : 0;
     console.error("[calendar/events POST]", { status, message });
     return new Response(
-      JSON.stringify({ error: "Failed to create calendar event", detail: message }),
+      JSON.stringify({
+        error: "Failed to create calendar event",
+        detail: message,
+      }),
       { status: 502, headers: { "Content-Type": "application/json" } },
     );
   }

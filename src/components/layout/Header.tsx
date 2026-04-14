@@ -7,20 +7,24 @@ import type { SessionPayload } from "@/lib/types";
 
 type HeaderProps = {
   session: SessionPayload;
-  weekOffset: number;
-  onPrevWeek: () => void;
-  onNextWeek: () => void;
+  viewMode: "week" | "month";
+  onViewModeChange: (mode: "week" | "month") => void;
+  offset: number; // weekOffset or monthOffset — used only to know if "Today" is needed
+  onPrev: () => void;
+  onNext: () => void;
   onToday: () => void;
-  currentWeekLabel: string;
+  currentLabel: string;
 };
 
 export function Header({
   session,
-  weekOffset,
-  onPrevWeek,
-  onNextWeek,
+  viewMode,
+  onViewModeChange,
+  offset,
+  onPrev,
+  onNext,
   onToday,
-  currentWeekLabel,
+  currentLabel,
 }: HeaderProps) {
   const [isDark, setIsDark] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -87,55 +91,96 @@ export function Header({
         </span>
       </div>
 
-      {/* Center: Week navigation */}
+      {/* Center: View toggle + navigation */}
       <div
-        style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
+        style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}
       >
-        <span
+        {/* Week / Month toggle */}
+        <div
           style={{
-            fontSize: "var(--text-sm)",
-            color: "var(--color-ink-soft)",
-            marginRight: "var(--space-2)",
+            display: "flex",
+            border: "1px solid var(--color-cream)",
+            borderRadius: "var(--radius-sm)",
+            overflow: "hidden",
           }}
         >
-          {currentWeekLabel}
-        </span>
-        {weekOffset !== 0 && (
-          <button
-            type="button"
-            onClick={onToday}
+          {(["week", "month"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onViewModeChange(mode)}
+              style={{
+                height: "32px",
+                padding: "0 var(--space-3)",
+                border: "none",
+                backgroundColor:
+                  viewMode === mode
+                    ? "var(--color-mahogany)"
+                    : "var(--color-linen)",
+                color:
+                  viewMode === mode ? "white" : "var(--color-ink-soft)",
+                fontSize: "var(--text-sm)",
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "background-color 150ms ease, color 150ms ease",
+                textTransform: "capitalize",
+              }}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+
+        {/* Navigation */}
+        <div
+          style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
+        >
+          <span
             style={{
-              height: "36px",
-              padding: "0 var(--space-3)",
-              backgroundColor: "var(--color-linen)",
-              border: "1px solid var(--color-cream)",
-              borderRadius: "var(--radius-sm)",
               fontSize: "var(--text-sm)",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontWeight: 500,
-              color: "var(--color-ink)",
-              cursor: "pointer",
+              color: "var(--color-ink-soft)",
             }}
           >
-            Today
+            {currentLabel}
+          </span>
+          {offset !== 0 && (
+            <button
+              type="button"
+              onClick={onToday}
+              style={{
+                height: "32px",
+                padding: "0 var(--space-3)",
+                backgroundColor: "var(--color-linen)",
+                border: "1px solid var(--color-cream)",
+                borderRadius: "var(--radius-sm)",
+                fontSize: "var(--text-sm)",
+                fontFamily: "var(--font-dm-sans), sans-serif",
+                fontWeight: 500,
+                color: "var(--color-ink)",
+                cursor: "pointer",
+              }}
+            >
+              Today
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onPrev}
+            aria-label={`Previous ${viewMode}`}
+            style={iconButtonStyle}
+          >
+            <ChevronLeft size={16} strokeWidth={1.5} />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={onPrevWeek}
-          aria-label="Previous week"
-          style={iconButtonStyle}
-        >
-          <ChevronLeft size={16} strokeWidth={1.5} />
-        </button>
-        <button
-          type="button"
-          onClick={onNextWeek}
-          aria-label="Next week"
-          style={iconButtonStyle}
-        >
-          <ChevronRight size={16} strokeWidth={1.5} />
-        </button>
+          <button
+            type="button"
+            onClick={onNext}
+            aria-label={`Next ${viewMode}`}
+            style={iconButtonStyle}
+          >
+            <ChevronRight size={16} strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
 
       {/* Right: Dark mode + user */}
@@ -177,12 +222,7 @@ export function Header({
             }}
           >
             {session.avatarUrl ? (
-              <Image
-                src={''}
-                alt={session.name}
-                width={32}
-                height={32}
-              />
+              <Image src={""} alt={session.name} width={32} height={32} />
             ) : (
               session.name.charAt(0).toUpperCase()
             )}
