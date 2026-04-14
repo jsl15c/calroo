@@ -29,24 +29,27 @@ export function DashboardClient({ session }: DashboardClientProps) {
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
-  const fetchEvents = useCallback(async (timeMin?: string, timeMax?: string) => {
-    setIsLoadingEvents(true);
-    try {
-      const params = new URLSearchParams();
-      if (timeMin) params.set("timeMin", timeMin);
-      if (timeMax) params.set("timeMax", timeMax);
-      const url = `/api/calendar/events${params.size ? `?${params}` : ""}`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = (await response.json()) as { events: CalendarEvent[] };
-        setEvents(data.events);
+  const fetchEvents = useCallback(
+    async (timeMin?: string, timeMax?: string) => {
+      setIsLoadingEvents(true);
+      try {
+        const params = new URLSearchParams();
+        if (timeMin) params.set("timeMin", timeMin);
+        if (timeMax) params.set("timeMax", timeMax);
+        const url = `/api/calendar/events${params.size ? `?${params}` : ""}`;
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = (await response.json()) as { events: CalendarEvent[] };
+          setEvents(data.events);
+        }
+      } catch {
+        // silently fail — events just won't populate
+      } finally {
+        setIsLoadingEvents(false);
       }
-    } catch {
-      // silently fail — events just won't populate
-    } finally {
-      setIsLoadingEvents(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Compute the visible date range and label for both modes
   const { currentLabel, offset, viewRange } = useMemo(() => {
@@ -70,7 +73,11 @@ export function DashboardClient({ session }: DashboardClientProps) {
     }
 
     // month mode
-    const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+    const base = new Date(
+      today.getFullYear(),
+      today.getMonth() + monthOffset,
+      1,
+    );
     const start = startOfMonth(base);
     const end = endOfMonth(base);
     return {

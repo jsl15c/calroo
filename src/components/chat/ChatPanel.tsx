@@ -274,9 +274,9 @@ export function ChatPanel({
           minHeight: 0,
           overflowY: "auto",
           padding: "var(--space-4)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-5)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-5)",
         }}
       >
         {/* Welcome message */}

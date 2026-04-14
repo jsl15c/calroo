@@ -18,14 +18,20 @@ export function CalendarMonthGrid({
 }: CalendarMonthGridProps) {
   const { weeks, monthStart } = useMemo(() => {
     const base = new Date();
-    const monthStart = new Date(base.getFullYear(), base.getMonth() + monthOffset, 1);
+    const monthStart = new Date(
+      base.getFullYear(),
+      base.getMonth() + monthOffset,
+      1,
+    );
     // Get the Monday of the week containing the 1st
     const firstDay = monthStart.getDay(); // 0=Sun, 1=Mon, ...
     const diffToMonday = firstDay === 0 ? -6 : 1 - firstDay;
     const gridStart = addDays(monthStart, diffToMonday);
 
     // Build 6 weeks (42 days) to always fill the grid
-    const days: Date[] = Array.from({ length: 42 }, (_, i) => addDays(gridStart, i));
+    const days: Date[] = Array.from({ length: 42 }, (_, i) =>
+      addDays(gridStart, i),
+    );
     const weeks: Date[][] = [];
     for (let i = 0; i < 42; i += 7) {
       weeks.push(days.slice(i, i + 7));
@@ -96,7 +102,10 @@ export function CalendarMonthGrid({
               const isCurrentMonth = day.getMonth() === monthStart.getMonth();
               const isToday = isSameDay(day, today);
               const dayEvents = events.filter((e) => isSameDay(e.start, day));
-              const overflowCount = Math.max(0, dayEvents.length - MAX_VISIBLE_EVENTS);
+              const overflowCount = Math.max(
+                0,
+                dayEvents.length - MAX_VISIBLE_EVENTS,
+              );
               const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
 
               return (

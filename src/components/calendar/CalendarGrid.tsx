@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useIsMobile } from "@/lib/hooks";
 import type { CalendarEvent } from "@/lib/types";
 import {
   addDays,
@@ -24,6 +25,8 @@ type CalendarGridProps = {
 };
 
 export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
+  const isMobile = useIsMobile();
+
   const weekDays = useMemo(() => {
     const base = startOfWeek(new Date());
     base.setDate(base.getDate() + weekOffset * 7);
@@ -31,6 +34,21 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
   }, [weekOffset]);
 
   const today = new Date();
+
+  // On mobile show 3 days, centered on today if it's in the current week,
+  // otherwise the first 3 days of the week.
+  const visibleDays = useMemo(() => {
+    if (!isMobile) return weekDays;
+    const todayIdx = weekDays.findIndex((d) => isSameDay(d, today));
+    if (todayIdx >= 0) {
+      const start = Math.max(0, Math.min(todayIdx - 1, weekDays.length - 3));
+      return weekDays.slice(start, start + 3);
+    }
+    return weekDays.slice(0, 3);
+  }, [isMobile, weekDays, today]);
+
+  const timeColWidth = isMobile ? 40 : 64;
+  const colTemplate = `${timeColWidth}px repeat(${visibleDays.length}, 1fr)`;
 
   return (
     <div
@@ -45,20 +63,22 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "64px repeat(7, 1fr)",
+          gridTemplateColumns: colTemplate,
           borderBottom: "1px solid var(--color-cream)",
           flexShrink: 0,
         }}
       >
         <div /> {/* Time column spacer */}
-        {weekDays.map((day) => {
+        {visibleDays.map((day) => {
           const isToday = isSameDay(day, today);
           const { weekday, date } = formatDayHeader(day);
           return (
             <div
               key={day.toISOString()}
               style={{
-                padding: "var(--space-3) var(--space-2)",
+                padding: isMobile
+                  ? "var(--space-2) var(--space-1)"
+                  : "var(--space-3) var(--space-2)",
                 textAlign: "center",
                 borderLeft: "1px solid var(--color-cream)",
               }}
@@ -76,7 +96,7 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
               </div>
               <div
                 style={{
-                  fontSize: "var(--text-lg)",
+                  fontSize: isMobile ? "var(--text-base)" : "var(--text-lg)",
                   fontWeight: 400,
                   color: isToday ? "var(--color-roo)" : "var(--color-ink)",
                   fontFamily: "var(--font-playfair), serif",
@@ -85,33 +105,27 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
               >
                 {day.getDate()}
               </div>
-              <div
-                style={{
-                  fontSize: "var(--text-xs)",
-                  color: isToday
-                    ? "var(--color-roo)"
-                    : "var(--color-ink-faint)",
-                }}
-              >
-                {date.split(" ")[0]}
-              </div>
+              {!isMobile && (
+                <div
+                  style={{
+                    fontSize: "var(--text-xs)",
+                    color: isToday ? "var(--color-roo)" : "var(--color-ink-faint)",
+                  }}
+                >
+                  {date.split(" ")[0]}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       {/* Time grid */}
-      <div
-        style={{
-          flex: 1,
-          overflow: "auto",
-          position: "relative",
-        }}
-      >
+      <div style={{ flex: 1, overflow: "auto", position: "relative" }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "64px repeat(7, 1fr)",
+            gridTemplateColumns: colTemplate,
             minHeight: `${(HOUR_END - HOUR_START) * 60}px`,
             position: "relative",
           }}
@@ -124,24 +138,30 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
                 style={{
                   position: "absolute",
                   top: `${((hour - HOUR_START) / (HOUR_END - HOUR_START)) * 100}%`,
-                  right: "var(--space-2)",
+                  right: isMobile ? "4px" : "var(--space-2)",
                   fontSize: "var(--text-xs)",
                   color: "var(--color-ink-faint)",
                   transform: "translateY(-50%)",
                   whiteSpace: "nowrap",
                 }}
               >
-                {hour === 12
-                  ? "12 PM"
-                  : hour > 12
-                    ? `${hour - 12} PM`
-                    : `${hour} AM`}
+                {isMobile
+                  ? hour === 12
+                    ? "12p"
+                    : hour > 12
+                      ? `${hour - 12}p`
+                      : `${hour}a`
+                  : hour === 12
+                    ? "12 PM"
+                    : hour > 12
+                      ? `${hour - 12} PM`
+                      : `${hour} AM`}
               </div>
             ))}
           </div>
 
           {/* Day columns */}
-          {weekDays.map((day) => {
+          {visibleDays.map((day) => {
             const isToday = isSameDay(day, today);
             const dayEvents = events.filter((e) => isSameDay(e.start, day));
 
@@ -214,6 +234,7 @@ export function CalendarGrid({ events, weekOffset }: CalendarGridProps) {
                     event={event}
                     hourStart={HOUR_START}
                     hourEnd={HOUR_END}
+                    compact={isMobile}
                   />
                 ))}
               </div>
@@ -269,9 +290,10 @@ type EventBlockProps = {
   event: CalendarEvent;
   hourStart: number;
   hourEnd: number;
+  compact?: boolean;
 };
 
-function EventBlock({ event, hourStart, hourEnd }: EventBlockProps) {
+function EventBlock({ event, hourStart, hourEnd, compact }: EventBlockProps) {
   const pos = eventPositionStyle(event.start, event.end, hourStart, hourEnd);
   const isTentative = event.status === "tentative";
 
@@ -290,7 +312,7 @@ function EventBlock({ event, hourStart, hourEnd }: EventBlockProps) {
           : "var(--event-meeting)",
         borderLeft: `3px solid ${isTentative ? "var(--event-tentative-bar)" : "var(--event-meeting-bar)"}`,
         borderRadius: "var(--radius-sm)",
-        padding: "2px 4px",
+        padding: compact ? "2px 3px" : "2px 4px",
         overflow: "hidden",
         cursor: "default",
         boxShadow: "var(--shadow-sm)",
@@ -322,15 +344,17 @@ function EventBlock({ event, hourStart, hourEnd }: EventBlockProps) {
       >
         {event.title}
       </div>
-      <div
-        style={{
-          fontSize: "var(--text-xs)",
-          color: "var(--color-ink-soft)",
-          lineHeight: 1.2,
-        }}
-      >
-        {formatTimeRange(event.start, event.end)}
-      </div>
+      {!compact && (
+        <div
+          style={{
+            fontSize: "var(--text-xs)",
+            color: "var(--color-ink-soft)",
+            lineHeight: 1.2,
+          }}
+        >
+          {formatTimeRange(event.start, event.end)}
+        </div>
+      )}
     </button>
   );
 }
