@@ -91,7 +91,7 @@ export function ChatPanel({
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text.trim(), history, timezone, viewContext }),
+          body: JSON.stringify({ message: text.trim(), history, timezone }),
           signal: controller.signal,
         });
 
@@ -433,20 +433,6 @@ export function ChatPanel({
             </div>
           );
         })}
-
-        {/* Streaming indicator (when loading before first token) */}
-        {isStreaming && messages[messages.length - 1]?.content === "" && (
-          <div
-            style={{
-              display: "flex",
-              gap: "var(--space-3)",
-              alignItems: "flex-start",
-            }}
-          >
-            <Image src="/roo/roo-avatar.svg" alt="Roo" width={28} height={28} />
-            <StreamingDots />
-          </div>
-        )}
 
         <div ref={messagesEndRef} />
       </div>
